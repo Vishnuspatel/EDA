@@ -1,0 +1,324 @@
+---
+title: "Final Project"
+author: "Vishnu Patel"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen=999)
+library(tidyverse)
+library(caTools)
+library(purrr)
+library(modelr)
+library(caret)
+library(kableExtra)
+```
+
+# DATA
+
+```{r}
+NSDUH <- as.tibble(read_csv("final_NSDUH.csv"))
+glimpse(NSDUH)
+
+NSDUH %>%
+  select(ARRESTED_BOOK)
+
+data1 <- NSDUH %>%
+  select(ALC_PAST_YEAR, MRJ_PAST_YEAR, ARRESTED_BOOK, ALC_Age, MRJ_Age, WEEKS_UNEMPL_PY) %>%
+  na.omit() %>%
+  mutate(ARRESTED_BOOK = as.factor(ARRESTED_BOOK))
+
+data1a <- NSDUH %>%
+  select(ALC_PAST_YEAR, MRJ_PAST_YEAR, ARRESTED_BOOK, ALC_Age, MRJ_Age, WEEKS_UNEMPL_PY) %>%
+  na.omit() 
+
+data2 <- NSDUH %>%
+  select(ARRESTED_BOOK, WEEKS_UNEMPL_PY, HOURS_WORK, ALC_PER_WEEK, ALC_PAST_YEAR) %>%
+  na.omit() %>%
+  mutate(ARRESTED_BOOK = as.factor(ARRESTED_BOOK))
+
+data2a <- NSDUH %>%
+  select(ARRESTED_BOOK, WEEKS_UNEMPL_PY, HOURS_WORK, ALC_PER_WEEK, ALC_PAST_YEAR) %>%
+  na.omit()
+
+data3 <- NSDUH %>%
+  select(ARRESTED_BOOK, AD_DPREV, DANGER_DELIGHT) %>%
+  na.omit() %>%
+  mutate(ARRESTED_BOOK = as.factor(ARRESTED_BOOK))
+
+data3a <- NSDUH %>%
+  select(ARRESTED_BOOK, AD_DPREV, DANGER_DELIGHT) %>%
+  na.omit()
+
+data4 <- NSDUH %>%
+  select(ARRESTED_BOOK, SEX, DAYS_SKIPPED_CLASS) %>%
+  na.omit() %>%
+  mutate(ARRESTED_BOOK = as.factor(ARRESTED_BOOK))
+
+data4a <- NSDUH %>%
+  select(ARRESTED_BOOK, SEX, DAYS_SKIPPED_CLASS) %>%
+  na.omit() 
+
+data5 <- NSDUH %>%
+  select(ALC_SEV_PAST_YEAR, ARRESTED_BOOK) %>%
+  na.omit() %>%
+  mutate(ARRESTED_BOOK = as.factor(ARRESTED_BOOK))
+
+data5a <- NSDUH %>%
+  select(ALC_SEV_PAST_YEAR, ARRESTED_BOOK) %>%
+  na.omit() 
+
+data6 <- NSDUH %>%
+  select(AGE, ARRESTED_BOOK) %>%
+  na.omit() %>%
+  mutate(ARRESTED_BOOK = as.factor(ARRESTED_BOOK))
+
+data6a <- NSDUH %>%
+  select(AGE, ARRESTED_BOOK) %>%
+  na.omit() 
+
+data7 <- NSDUH %>%
+  select(ARRESTED_BOOK, ALC_SEV_PAST_YEAR, AGE, DAYS_SKIPPED_CLASS) %>%
+  na.omit() %>%
+  mutate(ARRESTED_BOOK = as.factor(ARRESTED_BOOK))
+
+data7a <- NSDUH %>%
+  select(ARRESTED_BOOK, ALC_SEV_PAST_YEAR, AGE, DAYS_SKIPPED_CLASS) %>%
+  na.omit()
+
+data8 <- NSDUH %>%
+  select(ARRESTED_BOOK, ALC_SEV_PAST_YEAR, AGE, DAYS_SKIPPED_CLASS, AD_DPREV) %>%
+  na.omit() %>%
+  mutate(ARRESTED_BOOK = as.factor(ARRESTED_BOOK))
+
+data8a <- NSDUH %>%
+  select(ARRESTED_BOOK, ALC_SEV_PAST_YEAR, AGE, DAYS_SKIPPED_CLASS, AD_DPREV) %>%
+  na.omit()
+
+data9 <- NSDUH %>%
+  select(ARRESTED_BOOK, ALC_SEV_PAST_YEAR, AGE, DAYS_SKIPPED_CLASS, AD_DPREV, WEEKS_UNEMPL_PY, ALC_PAST_YEAR) %>%
+  na.omit() %>%
+  mutate(ARRESTED_BOOK = as.factor(ARRESTED_BOOK))
+
+data9a <- NSDUH %>%
+  select(ARRESTED_BOOK, ALC_SEV_PAST_YEAR, AGE, DAYS_SKIPPED_CLASS, AD_DPREV, WEEKS_UNEMPL_PY, ALC_PAST_YEAR) %>%
+  na.omit()
+
+tester <- NSDUH %>%
+  select(ARRESTED_BOOK, ALC_SEV_PAST_YEAR, AGE, DAYS_SKIPPED_CLASS, AD_DPREV, WEEKS_UNEMPL_PY, ALC_PAST_YEAR, SEX, DANGER_DELIGHT, WEEKS_UNEMPL_PY, HOURS_WORK, ALC_PER_WEEK, ALC_PAST_YEAR) %>%
+  na.omit() %>%
+  mutate(ARRESTED_BOOK = as.factor(ARRESTED_BOOK))
+  
+```
+
+## Starter Visualization of Question 2
+
+```{r}
+Age_book <- NSDUH %>%
+  select(AGE, ARRESTED_BOOK) %>%
+  group_by(ARRESTED_BOOK) %>%
+  na.omit()
+  
+Age_book$ARRESTED_BOOK <- as.factor(Age_book$ARRESTED_BOOK)
+
+ggplot(Age_book) +
+  geom_bar(aes(x=ARRESTED_BOOK, fill = AGE)) +
+  xlab("Ever Been Booked") +
+  guides(fill=guide_legend(title="Age")) +
+  scale_x_discrete(labels=c('label1', 'label2')) +
+  theme_minimal()
+
+
+age_vis2 <- NSDUH %>%
+  select(ARRESTED_BOOK, ALC_PAST_YEAR) %>%
+  na.omit()
+  
+age_vis2$ALC_PAST_YEAR <- as.factor(age_vis2$ALC_PAST_YEAR)
+age_vis2$ARRESTED_BOOK <- as.factor(age_vis2$ARRESTED_BOOK)
+
+ggplot(age_vis2) +
+  geom_bar(aes(x= ARRESTED_BOOK, fill= ALC_PAST_YEAR)) +
+  xlab("Ever Been Booked") +
+  theme_minimal() +
+  guides(fill=guide_legend(title="Alcohol Past Year Use"))
+
+mod4_tab <- data.frame(
+  RMSE = 0.1015524,
+  MAE = 0.05965726,
+  Accuracy = 0.9733333)
+mod4_tab %>%
+  kable("html") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+
+## Modeling
+
+```{r}
+set.seed(123)
+train.kfold <- trainControl(method = "cv", number = 25)
+
+
+
+mod1 <- train(ARRESTED_BOOK ~ MRJ_Age + ALC_Age, data = data1, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod1a <- train(ARRESTED_BOOK ~ MRJ_Age + ALC_Age, data = data1a, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+
+mod2 <- train(ARRESTED_BOOK ~ WEEKS_UNEMPL_PY + ALC_PAST_YEAR, data = data2, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod2a <- train(ARRESTED_BOOK ~ WEEKS_UNEMPL_PY + ALC_PAST_YEAR, data = data2a, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+
+mod3 <- train(ARRESTED_BOOK ~ AD_DPREV, data = data3, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod3a <- train(ARRESTED_BOOK ~ AD_DPREV, data = data3a, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+
+mod4 <- train(ARRESTED_BOOK ~ DAYS_SKIPPED_CLASS, data = data4, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod4a <- train(ARRESTED_BOOK ~ DAYS_SKIPPED_CLASS, data = data4a, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+
+print(mod1)
+summary(mod1)
+
+print(mod2)
+summary(mod2)
+
+print(mod3)
+summary(mod3)
+
+print(mod4)
+summary(mod4)
+
+
+print(mod1a)
+print(mod2a)
+print(mod3a)
+print(mod4a)
+print(mod5a)
+print(mod6a)
+```
+
+# Test Model Extras (No Visualizations Yet)
+```{r}
+mod5 <- train(ARRESTED_BOOK ~ ALC_SEV_PAST_YEAR, data = data5, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod5a <- train(ARRESTED_BOOK ~ ALC_SEV_PAST_YEAR, data = data5a, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod5
+
+mod6 <- train(ARRESTED_BOOK ~ AGE, data = data6, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod6a <- train(ARRESTED_BOOK ~ AGE, data = data6a, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod6
+
+mod7 <- train(ARRESTED_BOOK ~ AGE + ALC_SEV_PAST_YEAR + DAYS_SKIPPED_CLASS, data = data7, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod7a <- train(ARRESTED_BOOK ~ AGE + ALC_SEV_PAST_YEAR + DAYS_SKIPPED_CLASS, data = data7a, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod7a
+
+mod8 <- train(ARRESTED_BOOK ~ AGE + ALC_SEV_PAST_YEAR + DAYS_SKIPPED_CLASS + AD_DPREV, data = data8, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod8a <- train(ARRESTED_BOOK ~ AGE + ALC_SEV_PAST_YEAR + DAYS_SKIPPED_CLASS + AD_DPREV, data = data8a, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+mod8a
+
+mod8a <- train(ARRESTED_BOOK ~ AGE + ALC_SEV_PAST_YEAR + DAYS_SKIPPED_CLASS + AD_DPREV, data = data8a, method = "glm", trControl = train.kfold, family=binomial(link=logit))
+
+```
+
+
+# Modeling Visualizations
+```{r}
+predictions1 <- predict(mod1, newdata = data1, type = "raw")
+predictions2 <- predict(mod2, newdata = data2, type = "raw")
+predictions3 <- predict(mod3, newdata = data3, type = "raw")
+predictions4 <- predict(mod4, newdata = data4, type = "raw")
+
+data1 <- mutate(data1, "Predictions" = predictions1)
+data2 <- mutate(data2, "Predictions" = predictions2)
+data3 <- mutate(data3, "Predictions" = predictions3)
+data4 <- mutate(data4, "Predictions" = predictions4)
+```
+
+<!--      RMSE       MAE     -->
+mod1a  0.3923314  0.3095571
+mod2a  0.3238296  0.2115301
+mod3a  0.3359712  0.2258661
+mod4a  0.1015524  0.05965726
+mod5a  0.3072587  0.1888695
+mod6a  0.3051467  0.1863853
+mod7   0.1061382  0.05392302
+mod8   0.0625     0.0625
+
+<!--    Accuracy    -->
+mod1    0.8024343
+mod2    0.8751303
+mod3    0.869548 
+mod4    0.9733333
+mod5    0.8908351
+mod6    0.8908351
+mod7    0.967619
+mod8    0.9375
+
+Note that the visuals were more accurate in the order of mod4, mod5, mod6, mod2, mod3, mod1 according to the generalized linear model from the caret package. 
+* Mod7 and Mod8 contain less than 200 observations in each dataset, which would be challenging to model and visualize. 
+
+
+## Visualizing our models
+```{r}
+# Data 1
+ggplot(data1) +
+  geom_tile(aes(x=MRJ_Age, y= ALC_Age, fill = Predictions)) +
+  xlab("First Age of Marijuana Use") +
+  ylab("First Age of Alcohol Use")
+
+ggplot(data1) +
+  geom_point(aes(x=ALC_Age, y=Predictions)) +
+  xlab("First Age of Alcohol Use")
+
+ggplot(data1) +
+  geom_point(aes(x=MRJ_Age, y=Predictions)) +
+  xlab("First Age of Alcohol Use")
+
+# Data 2
+data2$ALC_PAST_YEAR <- as.factor(data2$ALC_PAST_YEAR)
+
+ggplot(data2) +
+  geom_boxplot(aes(x=ALC_PAST_YEAR, y=Predictions))
+
+vis2a<- data2 %>%
+  group_by(WEEKS_UNEMPL_PY) %>%
+  summarize(mean = mean(Predictions))
+
+ggplot(vis2a, aes(x = WEEKS_UNEMPL_PY, y = mean)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(x = "Number of Weeks Unemployed", y = "Mean Predictions") +
+  theme_minimal()
+
+# Data 3
+
+vis3a <- data3 %>%
+  group_by(AD_DPREV) %>%
+  summarize(Mean_Predictions = mean(Predictions)) %>%
+  kable("html") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+vis3a
+# Data 4
+
+# <-- Work in Progress
+
+vis4a<- data4 %>%
+  group_by(DAYS_SKIPPED_CLASS) %>%
+  summarize(mean = mean(Predictions)) %>%
+  filter(DAYS_SKIPPED_CLASS != "0 days")
+
+ggplot(vis4a, aes(x = DAYS_SKIPPED_CLASS, y = mean)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(x = "Number of Days Skipped Class", y = "Mean Predictions") +
+  theme_minimal()
+
+ggplot(data4, aes(x = DAYS_SKIPPED_CLASS, y = Predictions)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(x = "Number of Days Skipped Class", y = "Mean Predictions") +
+  theme_minimal()
+```
+
+```{r}
+library(caret)
+set.seed(123)
+train.kfold <- trainControl(method = "cv", number = 25)
+
+mod1.1 <- train(ARRESTED_BOOK ~ ALC_PAST_YEAR + RACE + AGE_6_CAT + EMPLOYMENT_STATUS18 + TIMES_SOLD_DRUGS + TIMES_STOLE + TIMES_ATTACKED_OTHERS + DANGER_DELIGHT + RISK_FREQ + MRJ_PAST_YEAR + MRJ_EVER + HER_EVER + METH_EVER + DRUG_DISORDER, method = "glm", data = NSDUH, trControl = train.kfold, family=binomial(link=logit))
+sprint(mod1.1)
+```
